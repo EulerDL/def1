@@ -3,3 +3,9 @@
 static/uploads/*.png
 static/uploads/*.jpg
 .vscode/*
+*.ipynb
+.ipynb_checkpoints/*
+data/*
+Dataset generator/images/*
+Dataset generator/masks/*
+

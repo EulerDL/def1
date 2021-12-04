@@ -40,21 +40,8 @@ def save_img(img,path):
     sh = img.shape
     img = img.detach().cpu().numpy().reshape((sh[1],sh[2]))
     img = np.uint8(img)
-    r = img.copy()
-    r[r==1] = 255
-    r[r==4] = 255
-    r[r!=255] = 0
-    r = Image.fromarray(r)
-    g = img.copy()
-    g[g==2] = 255
-    g[g!=255] = 0
-    g = Image.fromarray(g)
-    b = img.copy()
-    b[b==3] = 255
-    b[b==4] = 255
-    b[b!=255] = 0
-    b = Image.fromarray(b)
-    img = Image.merge('RGB',(r,g,b))
+    img *= 40
+    img = Image.fromarray(img,mode='L')
     img.save(path)    
         
         
