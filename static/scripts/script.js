@@ -1,197 +1,171 @@
+// image and canvas
+var image = new Image();
+image.src = '/static/uploads/image.jpg';
 var canvas = document.getElementById("paint");
+canvas.width = image.width;
+canvas.height = image.height;
+// context and line width
 var ctx = canvas.getContext("2d");
+ctx.font = "22px Verdana";
 var width = $("/static/uploads/image.jpg").width();
 var height = $("/static/uploads/image.jpg").height();
-var curX, curY, prevX, prevY;
 var hold = false;
 ctx.lineWidth = 2;
-ctx.strokeStyle='#FF00000';
-ctx.fillStyle='#FF0000';
+ctx.strokeStyle = '#00000FF';
+ctx.fillStyle = '#0000FF';
 var fill_value = true;
 var stroke_value = false;
-var canvas_data = {"pencil": [], "line": [], "rectangle": [], "circle": [], "eraser": []}
-                        
-function color(color_value){
+var brushRadius = 8;
+
+var colors = ['#0000FF', '#FF0000', '#00FF00', '#FF00FF'];
+
+
+function color(color_value) {
     ctx.strokeStyle = color_value;
     ctx.fillStyle = color_value;
-    reset();
-}    
-        
-function add_pixel(){
+    LoadLayer(color_value);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function add_pixel() {
     ctx.lineWidth += 1;
 }
-        
-function reduce_pixel(){
-    if (ctx.lineWidth == 1){
+
+function reduce_pixel() {
+    if (ctx.lineWidth == 1) {
         ctx.lineWidth = 1;
     }
-    else{
+    else {
         ctx.lineWidth -= 1;
     }
 }
-        
-function fill(){
+
+function fill() {
     fill_value = true;
     stroke_value = false;
 }
-        
-function outline(){
+
+function outline() {
     fill_value = false;
     stroke_value = true;
 }
-               
-function reset(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    canvas_data = { "pencil": [], "line": [], "rectangle": [], "circle": [], "eraser": [] }
-}
-        
-// pencil tool
-        
-function pencil(){
-        
-    canvas.onmousedown = function(e){
-        curX = e.clientX;
-        curY = e.clientY;
-        hold = true;
-            
-        prevX = curX;
-        prevY = curY;
-        ctx.beginPath();
-        ctx.moveTo(prevX, prevY);
+
+function LoadLayer(color_value) {
+
+    var currentLayer = new Image();
+    currentLayer.onload = function () {
+        ctx.drawImage(currentLayer, 0, 0);
     };
-        
-    canvas.onmousemove = function(e){
-        if(hold){
-            curX = e.clientX;
-            curY = e.clientY;
-            draw();
-        }
-    };
-        
-    canvas.onmouseup = function(e){
-        hold = false;
-    };
-        
-    canvas.onmouseout = function(e){
-        hold = false;
-    };
-        
-    function draw(){
-        ctx.lineTo(curX, curY);
-        ctx.stroke();
-        canvas_data.pencil.push({ "startx": prevX, "starty": prevY, "endx": curX, "endy": curY, "thick": ctx.lineWidth, "color": ctx.strokeStyle });
+    switch (color_value) {
+        case '#0000FF':
+            currentLayer.src = '/static/uploads/layer1.png';
+            break;
+        case '#FF0000':
+            currentLayer.src = '/static/uploads/layer2.png';
+            break;
+        case '#00FF00':
+            currentLayer.src = '/static/uploads/layer3.png';
+            break;
+        case '#FF00FF':
+            currentLayer.src = '/static/uploads/layer4.png';
+            break;
+        default:
+            break;
     }
 }
-        
-// line tool
-        
-// function line(){
-           
-//     canvas.onmousedown = function (e){
-//         img = ctx.getImageData(0, 0, width, height);
-//         prevX = e.clientX - canvas.offsetLeft;
-//         prevY = e.clientY - canvas.offsetTop;
-//         hold = true;
-//     };
-            
-//     canvas.onmousemove = function linemove(e){
-//         if (hold){
-//             ctx.putImageData(img, 0, 0);
-//             curX = e.clientX - canvas.offsetLeft;
-//             curY = e.clientY - canvas.offsetTop;
-//             ctx.beginPath();
-//             ctx.moveTo(prevX, prevY);
-//             ctx.lineTo(curX, curY);
-//             ctx.stroke();
-//             canvas_data.line.push({ "starx": prevX, "starty": prevY, "endx": curX, "endY": curY, "thick": ctx.lineWidth, "color": ctx.strokeStyle });
-//             ctx.closePath();
-//         }
-//     };
-            
-//     canvas.onmouseup = function (e){
-//          hold = false;
-//     };
-            
-//     canvas.onmouseout = function (e){
-//          hold = false;
-//     };
-// }
-        
-// // rectangle tool
-        
-// function rectangle(){
-            
-//     canvas.onmousedown = function (e){
-//         img = ctx.getImageData(0, 0, width, height);
-//         prevX = e.clientX - canvas.offsetLeft;
-//         prevY = e.clientY - canvas.offsetTop;
-//         hold = true;
-//     };
-            
-//     canvas.onmousemove = function (e){
-//         if (hold){
-//             ctx.putImageData(img, 0, 0);
-//             curX = e.clientX - canvas.offsetLeft - prevX;
-//             curY = e.clientY - canvas.offsetTop - prevY;
-//             ctx.strokeRect(prevX, prevY, curX, curY);
-//             if (fill_value){
-//                 ctx.fillRect(prevX, prevY, curX, curY);
-//             }
-//             canvas_data.rectangle.push({ "starx": prevX, "stary": prevY, "width": curX, "height": curY, "thick": ctx.lineWidth, "stroke": stroke_value, "stroke_color": ctx.strokeStyle, "fill": fill_value, "fill_color": ctx.fillStyle });
-            
-//         }
-//     };
-            
-//     canvas.onmouseup = function(e){
-//         hold = false;
-//     };
-            
-//     canvas.onmouseout = function(e){
-//         hold = false;
-//     };
-// }
-        
-// // circle tool
-        
-// function circle(){
-            
-//     canvas.onmousedown = function (e){
-//         img = ctx.getImageData(0, 0, width, height);
-//         prevX = e.clientX - canvas.offsetLeft;
-//         prevY = e.clientY - canvas.offsetTop;
-//         hold = true;
-//     };
-            
-//     canvas.onmousemove = function (e){
-//         if (hold){
-//             ctx.putImageData(img, 0, 0);
-//             curX = e.clientX - canvas.offsetLeft;
-//             curY = e.clientY - canvas.offsetTop;
-//             ctx.beginPath();
-//             ctx.arc(Math.abs(curX + prevX)/2, Math.abs(curY + prevY)/2, Math.sqrt(Math.pow(curX - prevX, 2) + Math.pow(curY - prevY, 2))/2, 0, Math.PI * 2, true);
-//             ctx.closePath();
-//             ctx.stroke();
-//             if (fill_value){
-//                ctx.fill();
-//             }
-//             canvas_data.circle.push({ "starx": prevX, "stary": prevY, "radius": curX - prevX, "thick": ctx.lineWidth, "stroke": stroke_value, "stroke_color": ctx.strokeStyle, "fill": fill_value, "fill_color": ctx.fillStyle });
-//         }
-//     };
-            
-//     canvas.onmouseup = function (e){
-//         hold = false;
-//     };
-            
-//     canvas.onmouseout = function (e){
-//         hold = false;
-//     };
-// }
 
-function save(){
-    var filename = document.getElementById("fdbcktype").value;
-    var data = JSON.stringify(canvas_data);
-    var image = canvas.toDataURL();
-    
-    $.post("/", { save_fname: filename, save_cdata: data, save_image: image });
-    alert(filename + " saved");
+function pencil() {
+
+    var defaultColor = '#0000FF';
+    LoadLayer(defaultColor);
+
+    var curves = [];
+    function makePoint(x, y) {
+        return [x, y];
+    };
+
+    canvas.addEventListener("mousedown", event => {
+       
+        const curve = [];
+        curve.color = ctx.strokeStyle;
+      
+        curve.lineWidth = ctx.lineWidth;
+        curve.push(makePoint(event.offsetX, event.offsetY));
+        
+        curves.push(curve);
+
+        hold = true;
+    });
+
+    canvas.addEventListener("mousemove", event => {
+        if (hold) {
+            const point = makePoint(event.offsetX, event.offsetY)
+            curves[curves.length - 1].push(point);
+            repaint(curves);
+        }
+    });
+
+    canvas.addEventListener("mouseup", event => {
+        hold = false;
+    });
+
+    canvas.addEventListener("mouseleave", event => {
+        hold = false;
+    });
 }
+
+function repaint(curves1) {
+
+    curves1.forEach((curve) => {
+
+        if (ctx.strokeStyle == curve.color) {
+
+            ctx.lineWidth = curve.lineWidth;
+            circle(curve[0]);
+            smoothCurve(curve);
+        }
+    });
+}
+
+function circle(point) {
+
+    ctx.beginPath();
+    ctx.arc(...point, brushRadius / 2, 0, 2 * Math.PI);
+    ctx.fill();
+}
+
+function smoothCurveBetween(p1, p2) {
+
+    const cp = p1.map((coord, idx) => (coord + p2[idx]) / 2);
+    ctx.quadraticCurveTo(...p1, ...cp);
+}
+
+function smoothCurve(points) {
+
+    ctx.beginPath();
+    ctx.lineWidth = brushRadius;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    ctx.moveTo(...points[0]);
+
+    for (let i = 1; i < points.length - 1; i++) {
+        smoothCurveBetween(points[i], points[i + 1]);
+    }
+    ctx.stroke();
+}
+
+function save() {
+        // Convert the canvas to data
+        var image = canvas.toDataURL();
+
+        // Create a link
+        var aDownloadLink = document.createElement('a');
+        // Add the name of the file to the link
+        aDownloadLink.download = 'canvas_image.png';
+        // Attach the data to the link
+        aDownloadLink.href = image;
+
+        // Get the code to click the download link
+        aDownloadLink.click();
+} 
