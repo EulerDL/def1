@@ -1,11 +1,15 @@
 <html>
 <body onload="pencil()">
-    <h1>В разработке. Состав и качество работы функционала может не совпадать с ожиданиями, надеждами и мечтами ☺.</h1>
+    <h1>В разработке. Состав и качество работы функционала может не совпадать с ожиданиями, надеждами и ильями ☺.</h1>
     <form id=drawtype>
         <input type="radio" id="oil" name="fdbcktype" value="oil" checked><label for="oil" onclick="color('#0000FF')">Нефтепродукты</label>
         <input type="radio" id="recess" name="fdbcktype" value="recess"><label for="recess" onclick="color('#FF0000')">Углубление</label>
         <input type="radio" id="elongated_recess" name="fdbcktype" value="elongated_recess" onclick="color('#00FF00')"><label for="elongated_recess">Протяжённое углубление</label>
         <input type="radio" id="rust" name="fdbcktype" value="rust"><label for="rust" onclick="color('#FF00FF')">Ржавчина</label>
+    </form>
+    <form id=eraser1>
+        <input type="radio" id="on" name="eraser12" value="on"><label for="on" onclick="eraser(true)">Ластик вкл</label>
+        <input type="radio" id="off" name="eraser12" value="off" checked><label for="off" onclick="eraser(false)">Ластик выкл</label>
     </form>
     <p>
         <table>

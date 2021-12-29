@@ -16,15 +16,22 @@ ctx.fillStyle = '#0000FF';
 var fill_value = true;
 var stroke_value = false;
 var brushRadius = 8;
+var eraserOn1 = false;
 
-var colors = ['#0000FF', '#FF0000', '#00FF00', '#FF00FF'];
+var colors = ['#0000FF', '#FF0000', '#00FF00', '#FF00FF', '#000000'];
 
+function eraser(isOn) {
+    if (isOn == true)
+        eraserOn1 = true;
+    if (isOn == false)
+        eraserOn1 = false;
+}
 
 function color(color_value) {
-    ctx.strokeStyle = color_value;
-    ctx.fillStyle = color_value;
-    LoadLayer(color_value);
+        ctx.strokeStyle = color_value;
+        ctx.fillStyle = color_value;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+        LoadLayer(color_value);
 }
 
 function add_pixel() {
@@ -76,8 +83,8 @@ function LoadLayer(color_value) {
 
 function pencil() {
 
-    var defaultColor = '#0000FF';
-    LoadLayer(defaultColor);
+    var default_color = '#0000FF';
+    LoadLayer(default_color);
 
     var curves = [];
     function makePoint(x, y) {
@@ -85,10 +92,12 @@ function pencil() {
     };
 
     canvas.addEventListener("mousedown", event => {
-       
+
         const curve = [];
+        curve.eraserOn = false;
+        if (eraserOn1 == true)
+            curve.eraserOn = true;
         curve.color = ctx.strokeStyle;
-      
         curve.lineWidth = ctx.lineWidth;
         curve.push(makePoint(event.offsetX, event.offsetY));
         
@@ -97,7 +106,7 @@ function pencil() {
         hold = true;
     });
 
-    canvas.addEventListener("mousemove", event => {
+    canvas.addEventListener("mousemove", event => {                       
         if (hold) {
             const point = makePoint(event.offsetX, event.offsetY)
             curves[curves.length - 1].push(point);
@@ -119,10 +128,10 @@ function repaint(curves1) {
     curves1.forEach((curve) => {
 
         if (ctx.strokeStyle == curve.color) {
-
             ctx.lineWidth = curve.lineWidth;
+       
             circle(curve[0]);
-            smoothCurve(curve);
+            smoothCurve(curve, curve.eraserOn, curve.color);
         }
     });
 }
@@ -140,7 +149,7 @@ function smoothCurveBetween(p1, p2) {
     ctx.quadraticCurveTo(...p1, ...cp);
 }
 
-function smoothCurve(points) {
+function smoothCurve(points, isEraser, color) {
 
     ctx.beginPath();
     ctx.lineWidth = brushRadius;
@@ -149,10 +158,22 @@ function smoothCurve(points) {
 
     ctx.moveTo(...points[0]);
 
+   
     for (let i = 1; i < points.length - 1; i++) {
         smoothCurveBetween(points[i], points[i + 1]);
+        }
+    if (isEraser == true) {
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.strokeStyle = "rgba(255,255,255,1)";
+    }
+    if (isEraser == false) {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = color;
     }
     ctx.stroke();
+    ctx.globalCompositeOperation = "source-over";
+    ctx.strokeStyle = color;
+    
 }
 
 function save() {
