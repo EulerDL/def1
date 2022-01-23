@@ -30,15 +30,16 @@ def upload_file():
         if not allowed_file(file.filename):
             return jsonify({'error': 'format not supported'})
         try:
+            image_io = ImageIO()
             img_bytes = file.read()
-            img = load_img(img_bytes)
+            img = image_io.load(img_bytes)
             h,w = img.shape[2],img.shape[3]
             net = UNet(num_class=7)
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             net.load_state_dict(torch.load('dict.pth', map_location=device))
             net.eval()
             res = net(img)
-            percents = save_img(res,'static/uploads/res')
+            percents = image_io.save(res,'static/uploads/res')
             print(percents)
             return render_template('result.html')
         except:

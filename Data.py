@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import os
 import io
+import cv2
 
 import torch
 import torch.nn.functional as F
@@ -21,40 +22,58 @@ def get_names(IMG_PATH):
     return pd.DataFrame({'id':names}, index = np.arange(len(names)))
     
     
-def load_img(bytes):
-    img = Image.open(io.BytesIO(bytes))
-    img.save('static/uploads/image.jpg')
-    img = img.convert('RGB')
-    mean=[0.485, 0.456, 0.406] #Эти числа всё время встречаются в документации PyTorch
-    std=[0.229, 0.224, 0.225] #Поэтому использованы именно они
-    t = T.Compose([T.ToTensor(),T.Normalize(mean,std)])
-    img = t(img)
-    sh = img.shape
-    img = img.reshape(1,sh[0],sh[1],sh[2])
-    return img
-    
-    
-def save_img(img,path):
-    suffix = '.png'
-    percents = []
-    nc = img.shape[1]
-    img = torch.argmax(F.softmax(img, dim=1), dim=1)
-    sh = img.shape
-    img = img.detach().cpu().numpy().reshape((sh[1],sh[2]))
-    img = np.uint8(img)
-    size = sh[1]*sh[2]
-    for i in range(nc):
-        mask = np.full_like(img,i)
-        layer = np.array(img==mask,np.uint8)
-        layer *= 255
-        layer = Image.fromarray(layer,mode='L')
-        layer.save(f'{path}_layer{i}{suffix}')
-        percent = int(np.count_nonzero(layer)/size*100)
-        percents.append(percent)
-    img *= 40
-    img = Image.fromarray(img,mode='L')
-    img.save(f'{path}{suffix}')
-    return percents    
+class ImageIO:
+    def load(self,bytes):
+        img_arr = np.frombuffer(bytes,np.uint8)
+        img = cv2.imdecode(img_arr,cv2.IMREAD_COLOR)
+        cv2.imwrite('static/uploads/image.jpg',img)
+        img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        self.h,self.w,_ = img.shape
+        h_mod = (self.h//16)*16
+        w_mod = (self.w//16)*16
+        if (h_mod != self.h) or (w_mod != self.w):
+            img = cv2.resize(img,(w_mod,h_mod))
+        mean=[0.485, 0.456, 0.406] #Эти числа всё время встречаются в документации PyTorch
+        std=[0.229, 0.224, 0.225] #Поэтому использованы именно они
+        t = T.Compose([T.ToTensor(),T.Normalize(mean,std)])
+        img = t(img)
+        sh = img.shape
+        img = img.reshape(1,sh[0],sh[1],sh[2])
+        return img
+
+    def save(self,img,path):
+        suffix = '.png'
+        percents = []
+        nc = img.shape[1]
+        img = torch.argmax(F.softmax(img, dim=1), dim=1)
+        sh = img.shape
+        img = img.detach().cpu().numpy().reshape((sh[1],sh[2]))
+        img = np.uint8(img)
+        b=np.empty_like(img)
+        g=np.empty_like(img)
+        r=np.empty_like(img)
+        size = sh[1]*sh[2]
+        for i in range(nc):
+            mask = np.full_like(img,i)
+            layer = np.array(img==mask,np.uint8)
+            if(i%2):
+                b += layer
+            if((i//2)%2):
+                g += layer
+            if((i//4)%2):
+                r += layer
+            layer *= 255
+            cv2.imwrite(f'{path}_layer{i}{suffix}',layer)
+            percent = int(np.count_nonzero(layer)/size*100)
+            percents.append(percent)
+        print('1')
+        img = cv2.merge((b,g,r))
+        print('2')
+        _,img = cv2.threshold(img,0,255,cv2.THRESH_BINARY)
+        print('3')
+        img = cv2.resize(img,(self.w,self.h))
+        cv2.imwrite(f'{path}{suffix}',img)
+        return percents  
         
         
 class PipeDataset(Dataset):
