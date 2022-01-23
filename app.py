@@ -33,12 +33,13 @@ def upload_file():
             img_bytes = file.read()
             img = load_img(img_bytes)
             h,w = img.shape[2],img.shape[3]
-            net = UNet(num_class=5)
+            net = UNet(num_class=7)
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             net.load_state_dict(torch.load('dict.pth', map_location=device))
             net.eval()
             res = net(img)
-            save_img(res,'static/uploads/res.png')
+            percents = save_img(res,'static/uploads/res')
+            print(percents)
             return render_template('result.html')
         except:
             return jsonify({'error': 'error during prediction'})

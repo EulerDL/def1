@@ -35,27 +35,26 @@ def load_img(bytes):
     
     
 def save_img(img,path):
+    suffix = '.png'
+    percents = []
     nc = img.shape[1]
     img = torch.argmax(F.softmax(img, dim=1), dim=1)
     sh = img.shape
     img = img.detach().cpu().numpy().reshape((sh[1],sh[2]))
     img = np.uint8(img)
-    r = img.copy()
-    r[r==1] = 255
-    r[r==4] = 255
-    r[r!=255] = 0
-    r = Image.fromarray(r)
-    g = img.copy()
-    g[g==2] = 255
-    g[g!=255] = 0
-    g = Image.fromarray(g)
-    b = img.copy()
-    b[b==3] = 255
-    b[b==4] = 255
-    b[b!=255] = 0
-    b = Image.fromarray(b)
-    img = Image.merge('RGB',(r,g,b))
-    img.save(path)    
+    size = sh[1]*sh[2]
+    for i in range(nc):
+        mask = np.full_like(img,i)
+        layer = np.array(img==mask,np.uint8)
+        layer *= 255
+        layer = Image.fromarray(layer,mode='L')
+        layer.save(f'{path}_layer{i}{suffix}')
+        percent = int(np.count_nonzero(layer)/size*100)
+        percents.append(percent)
+    img *= 40
+    img = Image.fromarray(img,mode='L')
+    img.save(f'{path}{suffix}')
+    return percents    
         
         
 class PipeDataset(Dataset):
