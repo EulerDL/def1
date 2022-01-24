@@ -70,17 +70,13 @@ class ImageIO:
             if((i//4)%2):
                 r += layer
                 layer_r[:,:] = layer[:,:]
-            #layer *= 255
             percent = int(np.count_nonzero(layer)/size*100)
             percents.append(percent)
             layer = cv2.merge((layer_b,layer_g,layer_r,layer_a))
             _,layer = cv2.threshold(layer,0,255,cv2.THRESH_BINARY)
             cv2.imwrite(f'{path}_layer{i}{suffix}',layer)
-        print('1')
         img = cv2.merge((b,g,r))
-        print('2')
         _,img = cv2.threshold(img,0,255,cv2.THRESH_BINARY)
-        print('3')
         cv2.imwrite(f'{path}{suffix}',img)
         return percents  
         
