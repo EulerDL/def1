@@ -17,5 +17,7 @@ data/*
 Dataset generator/images/*
 Dataset generator/masks/*
 
-static/uploads/*.jpg
-static/uploads/*.png
+static/temp/*.jpg
+static/temp/*.png
+
+instance/*

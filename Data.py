@@ -26,7 +26,7 @@ class ImageIO:
     def load(self,bytes):
         img_arr = np.frombuffer(bytes,np.uint8)
         img = cv2.imdecode(img_arr,cv2.IMREAD_COLOR)
-        cv2.imwrite('static/uploads/image.jpg',img)
+        cv2.imwrite('static/temp/image.jpg',img)
         img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
         self.h,self.w,_ = img.shape
         h_mod = (self.h//16)*16
