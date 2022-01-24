@@ -192,6 +192,7 @@ def update(id):
     if request.method == 'POST':
         title = request.form['title']
         picture = request.form['canvasimg'] # picture is str object
+        layer = request.form['fdbcktype']
         error = None
 
         if not title:
@@ -201,7 +202,6 @@ def update(id):
             flash(error)
         else:
             db = get_db()
-            layer = request.form['fdbcktype']
             db.execute(
                 # 'UPDATE post SET title = ?, body = ?'
                 'UPDATE post SET '+ layer_map[layer] + ' = ?'
@@ -210,6 +210,8 @@ def update(id):
                 (picture, id)
             )
             db.commit()
+            with open("static/temp/" + layer_map[layer] + ".png", 'wb') as file:    # Сохраняет пользовательскую картинку на диск
+                file.write(base64.b64decode(split_b64str(picture)))
             flash("Layer saved!")
             # return redirect(url_for('blog.index'))
     else:

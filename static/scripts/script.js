@@ -17,6 +17,7 @@ var fill_value = true;
 var stroke_value = false;
 var brushRadius = 8;
 var eraserOn1 = false;
+var k = 0;
 
 var colors = ['#0000FF', '#00FF00', '#00FFFF', '#FF0000', '#FF00FF', '#FFFF00'];
 
@@ -31,7 +32,9 @@ function color(color_value) {
         ctx.strokeStyle = color_value;
         ctx.fillStyle = color_value;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-        LoadLayer(color_value);
+    LoadLayer(color_value);
+    repaint(curves);
+    repaint(curves1);
 }
 
 function add_pixel() {
@@ -47,6 +50,10 @@ function reduce_pixel() {
     }
 }
 
+function restoreLayer() {
+
+}
+
 function fill() {
     fill_value = true;
     stroke_value = false;
@@ -58,31 +65,46 @@ function outline() {
 }
 
 function LoadLayer(color_value) {
-
+    var img1 = new Image();
     var currentLayer = new Image();
     currentLayer.onload = function () {
         ctx.drawImage(currentLayer, 0, 0);
     };
-    // Подгружает картинку с диска в канву
     switch (color_value) {  
         case '#0000FF':
-            // if edit_salinity exist load edit_salinity else: -- similar for every layer
-            currentLayer.src = '/static/temp/layer_salinity.png';
+            img1.src = '/static/temp/edit_salinity.png';
+            img1.onload = function () { currentLayer.src = '/static/temp/edit_salinity.png'; };
+            img1.onerror = function () { currentLayer.src = '/static/temp/layer_salinity.png'; };
             break;
         case '#00FF00':
-            currentLayer.src = '/static/temp/layer_corrosion.png';
+
+            img1.src = '/static/temp/edit_corrosion.png';
+            img1.onload = function () { currentLayer.src = '/static/temp/edit_corrosion.png'; };
+            img1.onerror = function () { currentLayer.src = '/static/temp/layer_corrosion.png'; };
             break;
         case '#00FFFF':
-            currentLayer.src = '/static/temp/layer_pitting.png';
+
+            img1.src = '/static/temp/edit_pitting.png';
+            img1.onload = function () { currentLayer.src = '/static/temp/edit_pitting.png'; };
+            img1.onerror = function () { currentLayer.src = '/static/temp/layer_pitting.png'; };
             break;
         case '#FF0000':
-            currentLayer.src = '/static/temp/layer_oil.png';
+
+            img1.src = '/static/temp/edit_oil.png';
+            img1.onload = function () { currentLayer.src = '/static/temp/edit_oil.png'; };
+            img1.onerror = function () { currentLayer.src = '/static/temp/layer_oil.png'; };
             break;
         case '#FF00FF':
-            currentLayer.src = '/static/temp/layer_recess.png';
+
+            img1.src = '/static/temp/edit_recess.png';
+            img1.onload = function () { currentLayer.src = '/static/temp/edit_recess.png'; };
+            img1.onerror = function () { currentLayer.src = '/static/temp/layer_recess.png'; };
             break;
         case '#FFFF00':
-            currentLayer.src = '/static/temp/layer_ext_recess.png';
+
+            img1.src = '/static/temp/edit_ext_recess.png';
+            img1.onload = function () { currentLayer.src = '/static/temp/edit_ext_recess.png'; };
+            img1.onerror = function () { currentLayer.src = '/static/temp/layer_ext_recess.png'; };
             break;
         default:
             break;
@@ -90,8 +112,13 @@ function LoadLayer(color_value) {
 }
 
 function pencil() {
-
+    if (k < 1) {
+        location.reload();
+        k++;
+    }
     var default_color = '#0000FF';
+    ctx.strokeStyle = default_color;
+    ctx.fillStyle = default_color;
     LoadLayer(default_color);
 
     var curves = [];
