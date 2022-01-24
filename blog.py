@@ -264,7 +264,6 @@ def update(id):
     if request.method == 'POST':
         title = request.form['title']
         picture = request.form['canvasimg'] # picture is str object
-        layer = request.form['fdbcktype']
         error = None
 
         if not title:
@@ -274,6 +273,7 @@ def update(id):
             flash(error)
         else:
             db = get_db()
+            layer = request.form['fdbcktype']
             db.execute(
                 # 'UPDATE post SET title = ?, body = ?'
                 'UPDATE post SET '+ layer_map[layer] + ' = ?'
@@ -282,8 +282,6 @@ def update(id):
                 (picture, id)
             )
             db.commit()
-            with open("static/temp/" + layer_map[layer] + ".png", 'wb') as file:    # Сохраняет пользовательскую картинку на диск
-                file.write(base64.b64decode(split_b64str(picture)))
             flash("Layer saved!")
             # return redirect(url_for('blog.index'))
     else:
@@ -423,39 +421,50 @@ def send_feedback(id):
     #Вместо отправки всего выбирать нужные слои или отправлять все и писать нужные слои текстом
     error = ""
     attach_imgs('original', image_data, msg)
+    empty_layers = 0
     #Заменить на цикл
     try:
         attach_imgs('salinity', image_data, msg)
     except:
         error += "Salinity "
+        empty_layers += 1
     try:
         attach_imgs('corrosion', image_data, msg)
     except:
         error += "Corrosion "
+        empty_layers += 1
     try:
         attach_imgs('pitting', image_data, msg)
     except:
         error += "Pitting "
+        empty_layers += 1
     try:
         attach_imgs('oil', image_data, msg)
     except:
         error += "Oil "
+        empty_layers += 1
     try:
         attach_imgs('recess', image_data, msg)
     except:
         error += "Recess "
+        empty_layers += 1
     try:
         attach_imgs('elongated_recess', image_data, msg)
     except:
         error += "Elongated recess"
-    mail.send(msg)
-    if (error == ""):
-        flash("Message sent!")
+        empty_layers += 1
+    if (empty_layers == 6):
+            flash("There are no edited layers for this post")
     else:
-        flash("Post " + get_db().execute(
-            'SELECT title'
-            ' FROM post p JOIN user u ON p.author_id = u.id'
-            ' WHERE p.id = ?',
-            (id,)
-        ).fetchone()[0] + " (ID: " + str(id) + "): The following layers weren't saved to be sent: " + error)
+        if (error == ""):
+            flash("Message sent with all the layers!")
+            mail.send(msg)
+        else:
+            flash("Post " + get_db().execute(
+                'SELECT title'
+                ' FROM post p JOIN user u ON p.author_id = u.id'
+                ' WHERE p.id = ?',
+                (id,)
+            ).fetchone()[0] + " (ID: " + str(id) + "): The following layers weren't saved to be sent: " + error)
+            mail.send(msg)
     return redirect(url_for('blog.index'))
