@@ -59,19 +59,92 @@ def split_b64str(b64string):
     return result
 
 def clear_temp():
+    print("Clear called")
+    try:
+        os.remove('static/temp/orig.png')
+    except:
+        pass
+    try:
+        os.remove('static/temp/res.png')
+    except:
+        pass
+    try:
+        os.remove('static/temp/res_layer0.png')
+    except:
+        pass
+    try:
+        os.remove('static/temp/res_layer1.png')
+    except:
+        pass
+    try:
+        os.remove('static/temp/res_layer2.png')
+    except:
+        pass
+    try:
+        os.remove('static/temp/res_layer3.png')
+    except:
+        pass
+    try:
+        os.remove('static/temp/res_layer4.png')
+    except:
+        pass
+    try:
+        os.remove('static/temp/res_layer5.png')
+    except:
+        pass
+    try:
+        os.remove('static/temp/res_layer6.png')
+    except:
+        pass
     try:
         os.remove('static/temp/background.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/layer_salinity.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/layer_corrosion.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/layer_pitting.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/layer_oil.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/layer_recess.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/layer_ext_recess.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/edit_salinity.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/edit_corrosion.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/edit_pitting.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/edit_oil.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/edit_recess.png')
+    except:
+        pass
+    try:
         os.remove('static/temp/edit_ext_recess.png')
     except:
         pass
@@ -143,8 +216,7 @@ def create():
                 )
             db.commit()
             # Удалить слои с диска (os.remove("path/to/img.png")) ЕСЛИ нужно было сохранять файл
-            # os.remove('static/temp/res.png')
-            return redirect(url_for('blog.index'))
+        return redirect(url_for('blog.index'))
 
     return render_template('blog/create.html')
 
