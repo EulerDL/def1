@@ -59,7 +59,6 @@ def split_b64str(b64string):
     return result
 
 def clear_temp():
-    print("Clear called")
     try:
         os.remove('static/temp/orig.png')
     except:
