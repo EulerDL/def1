@@ -17,7 +17,6 @@ var fill_value = true;
 var stroke_value = false;
 var brushRadius = 8;
 var eraserOn1 = false;
-var k = 0;
 
 var colors = ['#0000FF', '#00FF00', '#00FFFF', '#FF0000', '#FF00FF', '#FFFF00'];
 
@@ -112,10 +111,6 @@ function LoadLayer(color_value) {
 }
 
 function pencil() {
-    if (k < 1) {
-        location.reload();
-        k++;
-    }
     var default_color = '#0000FF';
     ctx.strokeStyle = default_color;
     ctx.fillStyle = default_color;
