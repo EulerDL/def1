@@ -1,54 +1,34 @@
 import os
-from flask import Flask, render_template, url_for, jsonify, request, flash, redirect, send_from_directory
-from werkzeug.utils import secure_filename
-from Data import *
-from Simple_Unet import *
 
-UPLOAD_FOLDER = './static/uploads/'
-UPLOAD_NAME = 'image.jpg'
-ALLOWED_EXTENSIONS = {'jpeg', 'jpg', 'png'}
+from flask import Flask
+from flask_mail import Mail
 
-app = Flask(__name__)
-app.config['JSON_AS_ASCII'] = False
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['UPLOAD_NAME'] = UPLOAD_NAME
+# create and configure the app
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_mapping(
+    SECRET_KEY='dev',
+    DATABASE=os.path.join(app.instance_path, 'defapp.sqlite'),
+)
 
-def allowed_file(filename):
-    # xxx.png
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@app.route('/')
-def upload():
-    return render_template('upload.html')
-
-@app.route('/uploader', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        file = request.files.get('file')
-        if file is None or file.filename == "":
-            return jsonify({'error': 'no file'})
-        if not allowed_file(file.filename):
-            return jsonify({'error': 'format not supported'})
-        try:
-            image_io = ImageIO()
-            img_bytes = file.read()
-            img = image_io.load(img_bytes)
-            h,w = img.shape[2],img.shape[3]
-            net = UNet(num_class=7)
-            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-            net.load_state_dict(torch.load('dict.pth', map_location=device))
-            net.eval()
-            res = net(img)
-            percents = image_io.save(res,'static/uploads/res')
-            print(percents)
-            return render_template('result.html')
-        except:
-            return jsonify({'error': 'error during prediction'})
+# mail configuration
+app.config.update(
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=465,
+    MAIL_USERNAME='pigin.labdef@gmail.com',
+    MAIL_PASSWORD='Defect101',
+    MAIL_USE_TLS=False,
+    MAIL_USE_SSL=True
+)
+mail=Mail()
+mail.init_app(app)
 
 
-@app.route('/feedback')
-def feedback():
-    return render_template('feedback.html')
+import db
+db.init_app(app)
 
-if __name__ == '__main__':
-    app.run()
+import auth
+app.register_blueprint(auth.bp)
+
+import blog
+app.register_blueprint(blog.bp)
+app.add_url_rule('/', endpoint='index')

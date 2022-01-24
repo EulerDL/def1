@@ -1,11 +1,14 @@
-*.pyc
-*env/*
-static/uploads/*.png
-static/uploads/*.jpg
-.vscode/*
-*.ipynb
-.ipynb_checkpoints/*
-data/*
-Dataset generator/images/*
-Dataset generator/masks/*
+venv/
 
+*.pyc
+__pycache__/
+
+instance/
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+dist/
+build/
+*.egg-info/

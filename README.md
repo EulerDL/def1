@@ -1,2 +1,2 @@
-# def1
-Дефектоскопия - этап 1
+# defdbtest
+Arutur.pythonanywhere.com

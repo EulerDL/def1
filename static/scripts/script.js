@@ -1,14 +1,14 @@
 // image and canvas
 var image = new Image();
-image.src = '/static/uploads/image.jpg';
+image.src = '/static/temp/background.png';
 var canvas = document.getElementById("paint");
 canvas.width = image.width;
 canvas.height = image.height;
 // context and line width
 var ctx = canvas.getContext("2d");
 ctx.font = "22px Verdana";
-var width = $("/static/uploads/image.jpg").width();
-var height = $("/static/uploads/image.jpg").height();
+var width = $("/static/temp/background.png").width();
+var height = $("/static/temp/background.png").height();
 var hold = false;
 ctx.lineWidth = 2;
 ctx.strokeStyle = '#00000FF';
@@ -18,7 +18,7 @@ var stroke_value = false;
 var brushRadius = 8;
 var eraserOn1 = false;
 
-var colors = ['#0000FF', '#FF0000', '#00FF00', '#FF00FF', '#000000'];
+var colors = ['#0000FF', '#00FF00', '#00FFFF', '#FF0000', '#FF00FF', '#FFFF00'];
 
 function eraser(isOn) {
     if (isOn == true)
@@ -63,18 +63,26 @@ function LoadLayer(color_value) {
     currentLayer.onload = function () {
         ctx.drawImage(currentLayer, 0, 0);
     };
-    switch (color_value) {
+    // Подгружает картинку с диска в канву
+    switch (color_value) {  
         case '#0000FF':
-            currentLayer.src = '/static/uploads/layer1.png';
-            break;
-        case '#FF0000':
-            currentLayer.src = '/static/uploads/layer2.png';
+            // if edit_salinity exist load edit_salinity else: -- similar for every layer
+            currentLayer.src = '/static/temp/layer_salinity.png';
             break;
         case '#00FF00':
-            currentLayer.src = '/static/uploads/layer3.png';
+            currentLayer.src = '/static/temp/layer_corrosion.png';
+            break;
+        case '#00FFFF':
+            currentLayer.src = '/static/temp/layer_pitting.png';
+            break;
+        case '#FF0000':
+            currentLayer.src = '/static/temp/layer_oil.png';
             break;
         case '#FF00FF':
-            currentLayer.src = '/static/uploads/layer4.png';
+            currentLayer.src = '/static/temp/layer_recess.png';
+            break;
+        case '#FFFF00':
+            currentLayer.src = '/static/temp/layer_ext_recess.png';
             break;
         default:
             break;
@@ -177,16 +185,5 @@ function smoothCurve(points, isEraser, color) {
 }
 
 function save() {
-        // Convert the canvas to data
-        var image = canvas.toDataURL();
-
-        // Create a link
-        var aDownloadLink = document.createElement('a');
-        // Add the name of the file to the link
-        aDownloadLink.download = 'canvas_image.png';
-        // Attach the data to the link
-        aDownloadLink.href = image;
-
-        // Get the code to click the download link
-        aDownloadLink.click();
-} 
+        document.getElementById("canvasimg").value = canvas.toDataURL();
+}
