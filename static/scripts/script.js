@@ -1,10 +1,12 @@
 // image and canvas
 var image = new Image();
-image.src = '/static/temp/background.png';
 var canvas = document.getElementById("paint");
-canvas.width = image.width;
-canvas.height = image.height;
-// context and line width
+image.onload = function () {
+
+    canvas.width = image.width;
+    canvas.height = image.height;
+};
+image.src = '/static/temp/background.png';
 var ctx = canvas.getContext("2d");
 ctx.font = "22px Verdana";
 var width = $("/static/temp/background.png").width();
