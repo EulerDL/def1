@@ -16,3 +16,4 @@ torch==1.9.1
 torchvision==0.10.1
 typing-extensions==3.10.0.2
 opencv-python==4.5.4.58
+tqdm==4.62.3
