@@ -1,10 +1,12 @@
 // image and canvas
 var image = new Image();
-image.src = '/static/temp/background.png';
 var canvas = document.getElementById("paint");
-canvas.width = image.width;
-canvas.height = image.height;
-// context and line width
+image.onload = function () {
+
+    canvas.width = image.width;
+    canvas.height = image.height;
+};
+image.src = '/static/temp/background.png';
 var ctx = canvas.getContext("2d");
 ctx.font = "22px Verdana";
 var width = $("/static/temp/background.png").width();
@@ -17,7 +19,6 @@ var fill_value = true;
 var stroke_value = false;
 var brushRadius = 8;
 var eraserOn1 = false;
-var k = 0;
 
 var colors = ['#0000FF', '#00FF00', '#00FFFF', '#FF0000', '#FF00FF', '#FFFF00'];
 
@@ -112,10 +113,6 @@ function LoadLayer(color_value) {
 }
 
 function pencil() {
-    if (k < 1) {
-        location.reload();
-        k++;
-    }
     var default_color = '#0000FF';
     ctx.strokeStyle = default_color;
     ctx.fillStyle = default_color;
