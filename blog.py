@@ -281,6 +281,8 @@ def update(id):
                 (picture, id)
             )
             db.commit()
+            with open("static/temp/" + layer_map[layer] + ".png", 'wb') as file:    # Сохраняет пользовательскую картинку на диск
+                file.write(base64.b64decode(split_b64str(picture)))
             flash("Layer saved!")
             # return redirect(url_for('blog.index'))
     else:
