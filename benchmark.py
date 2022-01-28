@@ -1,5 +1,6 @@
 from json import load
 import sys
+import io
 import time
 import numpy as np
 import torch
@@ -14,7 +15,7 @@ data = None
 with open(sys.argv[1],'rb') as file:
     data = file.read()
 img_io = ImageIO()
-img = img_io.load(data)
+img = img_io.load(io.BytesIO(data))
 mask = np.load(sys.argv[2])
 shape = img_io.w,img_io.h
 mask = resize(mask,shape)
