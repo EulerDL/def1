@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import os
 import io
-import cv2
 
 import torch
 import torch.nn.functional as F
@@ -24,15 +23,13 @@ def get_names(IMG_PATH):
     
 class ImageIO:
     def load(self,bytes):
-        img_arr = np.frombuffer(bytes,np.uint8)
-        img = cv2.imdecode(img_arr,cv2.IMREAD_COLOR)
-        cv2.imwrite('static/temp/image.jpg',img)
-        img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-        self.h,self.w,_ = img.shape
+        img = Image.open(io.BytesIO(bytes))
+        img.save('static/temp/image.jpg')
+        self.w,self.h = img.size
         h_mod = (self.h//16)*16
         w_mod = (self.w//16)*16
         if (h_mod != self.h) or (w_mod != self.w):
-            img = cv2.resize(img,(w_mod,h_mod))
+            img = img.resize((w_mod,h_mod))
         mean=[0.485, 0.456, 0.406] #Эти числа всё время встречаются в документации PyTorch
         std=[0.229, 0.224, 0.225] #Поэтому использованы именно они
         t = T.Compose([T.ToTensor(),T.Normalize(mean,std)])
@@ -42,14 +39,15 @@ class ImageIO:
         return img
 
     def save(self,img,path):
-        suffix = '.png'
         percents = []
         nc = img.shape[1]
         img = torch.argmax(F.softmax(img, dim=1), dim=1)
         sh = img.shape
         img = img.detach().cpu().numpy().reshape((sh[1],sh[2]))
         img = np.uint8(img)
-        img = cv2.resize(img,(self.w,self.h))
+        img = Image.fromarray(img)
+        img = img.resize((self.w,self.h))
+        img = np.array(img)
         b=np.empty_like(img)
         g=np.empty_like(img)
         r=np.empty_like(img)
@@ -72,12 +70,14 @@ class ImageIO:
                 layer_r[:,:] = layer[:,:]
             percent = int(np.count_nonzero(layer)/size*100)
             percents.append(percent)
-            layer = cv2.merge((layer_b,layer_g,layer_r,layer_a))
-            _,layer = cv2.threshold(layer,0,255,cv2.THRESH_BINARY)
-            cv2.imwrite(f'{path}_layer{i}{suffix}',layer)
-        img = cv2.merge((b,g,r))
-        _,img = cv2.threshold(img,0,255,cv2.THRESH_BINARY)
-        cv2.imwrite(f'{path}{suffix}',img)
+            layer = np.dstack((layer_r,layer_g,layer_b,layer_a))
+            layer[layer>0] = 255
+            layer = Image.fromarray(layer)
+            layer.save(f'{path}_layer{i}.png')
+        img = np.dstack((r,g,b))
+        img[img>0] = 255
+        img = Image.fromarray(img)
+        img.save(f'{path}.png')
         return percents  
         
         
