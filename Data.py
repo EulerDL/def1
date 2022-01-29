@@ -48,9 +48,9 @@ class ImageIO:
         img = Image.fromarray(img)
         img = img.resize((self.w,self.h))
         img = np.array(img)
-        b=np.empty_like(img)
-        g=np.empty_like(img)
-        r=np.empty_like(img)
+        b=np.zeros_like(img)
+        g=np.zeros_like(img)
+        r=np.zeros_like(img)
         size = sh[1]*sh[2]
         for i in range(nc):
             mask = np.full_like(img,i)
@@ -61,13 +61,13 @@ class ImageIO:
             layer_a = np.array(layer)
             if(i%2):
                 layer_b[:,:] = layer[:,:]
-                b += layer
+                b += layer_b
             if((i//2)%2):
-                g += layer
                 layer_g[:,:] = layer[:,:]
+                g += layer_g
             if((i//4)%2):
-                r += layer
                 layer_r[:,:] = layer[:,:]
+                r += layer_r
             percent = int(np.count_nonzero(layer)/size*100)
             percents.append(percent)
             layer = np.dstack((layer_r,layer_g,layer_b,layer_a))
