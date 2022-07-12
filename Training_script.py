@@ -13,6 +13,7 @@ from tqdm import tqdm
 from PIL import Image
 import albumentations as A
 import sys
+import time
 
 from Simple_Unet import *
 from Data import PipeDataset, get_names
@@ -32,16 +33,16 @@ Attention! Images and corresponding masks must have the same names, e. g. 123.pn
 
 
 if __name__ == '__main__':
-    IMG_PATH = sys.argv[1]
-    MASK_PATH = sys.argv[2]
-    N_CLASSES = int(sys.argv[3])
-    BATCH_SZ = int(sys.argv[4])
-    LR = float(sys.argv[5])
-    N_EPOCHS = int(sys.argv[6])
-    DICT_PATH = sys.argv[7]
+    IMG_PATH = 'data/images/'
+    MASK_PATH = 'data/masks/'
+    N_CLASSES = 7
+    BATCH_SZ = 1
+    LR = 0.001
+    N_EPOCHS = 1
+    DICT_PATH = 'test_dict.pth'
     df = get_names(IMG_PATH)
     model = UNet(num_class=N_CLASSES)
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cpu')
     train,test = train_test_split(df['id'].values,test_size = 0.2, random_state = 1337)
     train_transform = A.Compose([A.OneOf([A.HorizontalFlip(),A.VerticalFlip(),A.RandomRotate90()],p=0.8),
                                  A.Perspective(p=0.7,scale=(0.07,0.12)),A.Blur(p=0.5,blur_limit=6),
@@ -54,6 +55,8 @@ if __name__ == '__main__':
     test_loader = DataLoader(test_set, batch_size = BATCH_SZ, shuffle = True)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr = LR)
+    start = time.perf_counter()
     history,best_model_dict = fit(N_EPOCHS, model, N_CLASSES, train_loader, test_loader, criterion, optimizer, device)
+    end = time.perf_counter()
+    print(f'Time elapsed: {end-start}')
     torch.save(best_model_dict,DICT_PATH)
-    

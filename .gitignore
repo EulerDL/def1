@@ -17,6 +17,9 @@ data/*
 Dataset generator/images/*
 Dataset generator/masks/*
 
+*dict.pth
+!dict.pth
+
 static/temp/*.jpg
 static/temp/*.png
 
